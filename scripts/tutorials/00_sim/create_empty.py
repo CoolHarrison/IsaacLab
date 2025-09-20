@@ -1,61 +1,43 @@
-# Copyright (c) 2022-2025, The Isaac Lab Project Developers (https://github.com/isaac-sim/IsaacLab/blob/main/CONTRIBUTORS.md).
-# All rights reserved.
-#
-# SPDX-License-Identifier: BSD-3-Clause
-
-"""This script demonstrates how to create a simple stage in Isaac Sim.
-
-.. code-block:: bash
-
-    # Usage
-    ./isaaclab.sh -p scripts/tutorials/00_sim/create_empty.py
-
-"""
-
-"""Launch Isaac Sim Simulator first."""
-
-
 import argparse
-
 from isaaclab.app import AppLauncher
 
 # create argparser
 parser = argparse.ArgumentParser(description="Tutorial on creating an empty stage.")
-# append AppLauncher cli args
 AppLauncher.add_app_launcher_args(parser)
-# parse the arguments
 args_cli = parser.parse_args()
-# launch omniverse app
-app_launcher = AppLauncher(args_cli)
+
+# --- Low graphics config ---
+app_launcher = AppLauncher(
+    args_cli,
+    enable_window=True,         # show a window
+    width=800,                  # low resolution
+    height=600,
+    renderer="RayTracedLighting",
+    rtx_mode=0,                 # disable RTX ray tracing
+    skip_dlss=True,             # disable DLSS
+    anti_aliasing=0,            # disable AA
+    use_vulkan=True             # Vulkan backend
+)
+
+# Access the simulation app
 simulation_app = app_launcher.app
 
-"""Rest everything follows."""
-
+# Now we can safely import Isaac Lab modules
 from isaaclab.sim import SimulationCfg, SimulationContext
 
 
 def main():
-    """Main function."""
-
-    # Initialize the simulation context
     sim_cfg = SimulationCfg(dt=0.01)
     sim = SimulationContext(sim_cfg)
-    # Set main camera
-    sim.set_camera_view([2.5, 2.5, 2.5], [0.0, 0.0, 0.0])
+    sim.set_camera_view((2.5, 2.5, 2.5), (0.0, 0.0, 0.0))
 
-    # Play the simulator
     sim.reset()
-    # Now we are ready!
     print("[INFO]: Setup complete...")
 
-    # Simulate physics
     while simulation_app.is_running():
-        # perform step
         sim.step()
 
 
 if __name__ == "__main__":
-    # run the main function
     main()
-    # close sim app
     simulation_app.close()
